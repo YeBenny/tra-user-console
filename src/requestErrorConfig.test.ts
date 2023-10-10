@@ -1,20 +1,22 @@
-﻿import type { AxiosResponse, RequestConfig } from '@umijs/max';
-import { message } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
+﻿import type { RequestOptions } from '@@/plugin-request/request';
+import type { RequestConfig } from '@umijs/max';
+import { message, notification } from 'antd';
 
 // 错误处理方案： 错误类型
-enum ErrorCode {
-  SUCCESS = 0,
+enum ErrorShowType {
+  SILENT = 0,
+  WARN_MESSAGE = 1,
+  ERROR_MESSAGE = 2,
+  NOTIFICATION = 3,
+  REDIRECT = 9,
 }
-
 // 与后端约定的响应数据格式
 interface ResponseStructure {
   success: boolean;
-  errorCode?: ErrorCode;
-  errorMessage?: string;
-  errcode?: ErrorCode;
-  errmsg?: string;
   data: any;
+  errorCode?: number;
+  errorMessage?: string;
+  showType?: ErrorShowType;
 }
 
 /**
@@ -27,11 +29,12 @@ export const errorConfig: RequestConfig = {
   errorConfig: {
     // 错误抛出
     errorThrower: (res) => {
-      const { success, data, errorCode, errorMessage } = res as unknown as ResponseStructure;
+      const { success, data, errorCode, errorMessage, showType } =
+        res as unknown as ResponseStructure;
       if (!success) {
         const error: any = new Error(errorMessage);
         error.name = 'BizError';
-        error.info = { errorCode, errorMessage, data };
+        error.info = { errorCode, errorMessage, showType, data };
         throw error; // 抛出自制的错误
       }
     },
@@ -42,14 +45,28 @@ export const errorConfig: RequestConfig = {
       if (error.name === 'BizError') {
         const errorInfo: ResponseStructure | undefined = error.info;
         if (errorInfo) {
-          const { errorCode, errorMessage } = errorInfo;
-          switch (errorCode) {
-            case ErrorCode.SUCCESS:
+          const { errorMessage, errorCode } = errorInfo;
+          switch (errorInfo.showType) {
+            case ErrorShowType.SILENT:
               // do nothing
+              break;
+            case ErrorShowType.WARN_MESSAGE:
+              message.warning(errorMessage);
+              break;
+            case ErrorShowType.ERROR_MESSAGE:
+              message.error(errorMessage);
+              break;
+            case ErrorShowType.NOTIFICATION:
+              notification.open({
+                description: errorMessage,
+                message: errorCode,
+              });
+              break;
+            case ErrorShowType.REDIRECT:
+              // TODO: redirect
               break;
             default:
               message.error(errorMessage);
-              break;
           }
         }
       } else if (error.response) {
@@ -70,45 +87,21 @@ export const errorConfig: RequestConfig = {
 
   // 请求拦截器
   requestInterceptors: [
-    (url: string, options: RequestConfig) => {
+    (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
-      const baseUrl = ENDPOINT;
-      const token = localStorage.getItem('token');
-      let requestIdHeader;
-      if (token) {
-        requestIdHeader = { 'X-Wegalaxy-Request-Id': uuidv4(), Authorization: `Bearer ${token}` };
-      } else {
-        requestIdHeader = { 'X-Wegalaxy-Request-Id': uuidv4() };
-      }
-      return {
-        url: /^((http|https|ftp):\/\/)/.test(url) ? url : `${baseUrl}${url}`,
-        options: { ...options, interceptors: true, headers: requestIdHeader },
-      };
+      const url = config?.url?.concat('?token = 123');
+      return { ...config, url };
     },
   ],
 
   // 响应拦截器
   responseInterceptors: [
-    (response: AxiosResponse) => {
+    (response) => {
       // 拦截响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
-      const errorCode = data.errorCode ?? data.errcode;
-      const errorMessage = data.errorMessage ?? data.errmsg;
-      if (errorCode !== undefined && errorMessage !== undefined) {
-        response.data = {
-          errorCode,
-          errorMessage,
-          data: data.data,
-          success: errorCode === ErrorCode.SUCCESS,
-        };
-      } else {
-        const url = new URL(response.request.responseURL);
-        response.data = {
-          errorCode,
-          errorMessage,
-          data: `${url.origin}${url.pathname}`,
-          success: true,
-        };
+
+      if (data?.success === false) {
+        message.error('请求失败！');
       }
       return response;
     },
