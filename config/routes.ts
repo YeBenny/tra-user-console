@@ -22,11 +22,26 @@ export default [
       },
     ],
   },
-  { path: '/welcome', name: 'welcome', icon: 'smile', component: './Welcome' },
-
+  {
+    name: 'application',
+    icon: 'project',
+    path: '/application',
+    routes: [
+      {
+        path: '/application',
+        redirect: '/application/list',
+      },
+      {
+        name: 'application-list',
+        path: '/application/list',
+        hideInMenu: true,
+        component: './Application/List',
+      },
+    ],
+  },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/application',
   },
   {
     path: '*',
