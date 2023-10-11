@@ -7,6 +7,8 @@ export default {
   'menu.login': '登录',
   'menu.register': '注册',
   'menu.register-result': '注册结果',
+  'menu.application': '应用程序',
+  'menu.application.application-list': '应用程序列表',
   'menu.dashboard': 'Dashboard',
   'menu.dashboard.analysis': '分析页',
   'menu.dashboard.monitor': '监控页',
