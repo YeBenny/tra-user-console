@@ -25,4 +25,52 @@ declare namespace API {
     loginType: LoginType;
     loginIdType: LoginIdType;
   };
+
+  type GetApplicationParams = {
+    id: string;
+  };
+
+  type CreateApplicationParams = {
+    name: string;
+    description: string;
+  };
+
+  type UpdateApplicationParams = {
+    id: string;
+    name?: string;
+    description?: string;
+    status?: number;
+    version: number;
+    updateFields: string[];
+  };
+
+  type GetApplicationSecretParams = {
+    appId: string;
+  };
+
+  type PageInfoParams = {
+    startIndex?: number;
+    pageSize?: number;
+    totalRows?: number;
+  };
+
+  type PageParams = {
+    current?: number;
+    pageSize?: number;
+  };
+
+  type ApplicationListItem = {
+    id: string;
+    name: string;
+    description: string;
+    status: number;
+    version: number;
+    updatedAt: number;
+    createdAt: number;
+  };
+
+  type ApplicationList = {
+    result: ApplicationListItem[];
+    pageInfo: PageInfoParams;
+  };
 }
