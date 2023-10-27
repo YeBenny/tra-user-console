@@ -34,7 +34,7 @@ export async function getAppList(params: API.PageParams, options?: { [key: strin
       pageSize: pageSize,
     },
   };
-  const msg = await request<API.ResponseResult<API.ApplicationList>>('/app/list', {
+  const msg = await request<API.ResponseResult<API.ApplicationList>>('/apps/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -57,9 +57,9 @@ export async function getAppList(params: API.PageParams, options?: { [key: strin
   };
 }
 
-/** 获取应用程序 POST /app/get */
+/** 获取应用程序 POST /apps/get */
 export async function getApp(body: API.GetApplicationParams, options?: { [key: string]: any }) {
-  const msg = await request<API.ResponseResult<API.ApplicationListItem>>('/app/get', {
+  const msg = await request<API.ResponseResult<API.ApplicationListItem>>('/apps/get', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -72,12 +72,12 @@ export async function getApp(body: API.GetApplicationParams, options?: { [key: s
   return msg;
 }
 
-/** 新建应用程序 POST /app */
+/** 新建应用程序 POST /apps */
 export async function createApp(
   body: API.CreateApplicationParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.ResponseResult<API.ApplicationListItem>>('/app', {
+  return request<API.ResponseResult<API.ApplicationListItem>>('/apps', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -87,12 +87,12 @@ export async function createApp(
   });
 }
 
-/** 更新应用程序 PUT /app */
+/** 更新应用程序 PUT /apps */
 export async function updateApp(
   body: API.UpdateApplicationParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.ResponseResult<API.ApplicationListItem>>('/app', {
+  return request<API.ResponseResult<API.ApplicationListItem>>('/apps', {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -107,7 +107,7 @@ export async function getSecret(
   body: API.GetApplicationSecretParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.ResponseResult<string>>('/app/secret', {
+  return request<API.ResponseResult<string>>('/apps/secret', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
