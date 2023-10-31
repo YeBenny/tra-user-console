@@ -40,6 +40,41 @@ export default [
     ],
   },
   {
+    name: 'series',
+    icon: 'rocket',
+    path: '/series',
+    routes: [
+      {
+        path: '/series',
+        redirect: '/series/list',
+      },
+      {
+        name: 'series-list',
+        path: '/series/list',
+        hideInMenu: true,
+        component: './Series/List',
+      },
+      {
+        name: 'series-create',
+        path: '/series/create',
+        hideInMenu: true,
+        component: './Series/Create',
+      },
+      {
+        name: 'series-update',
+        path: '/series/:id/update',
+        hideInMenu: true,
+        component: './Series/Update',
+      },
+      {
+        name: 'series-detail',
+        path: '/series/:id',
+        hideInMenu: true,
+        component: './Series/Detail',
+      },
+    ],
+  },
+  {
     path: '/',
     redirect: '/application',
   },
