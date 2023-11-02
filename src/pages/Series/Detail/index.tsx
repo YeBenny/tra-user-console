@@ -1,4 +1,12 @@
-import { getRedemptionList, getSeries, getTra, getTraList } from '@/services/ant-design-pro/api';
+import {
+  downloadReport,
+  getRedemptionList,
+  getRedemptionReportList,
+  getSeries,
+  getTra,
+  getTraList,
+} from '@/services/ant-design-pro/api';
+import { DownloadOutlined } from '@ant-design/icons';
 import {
   ProCard,
   ProColumns,
@@ -8,7 +16,7 @@ import {
 } from '@ant-design/pro-components';
 import { PageContainer } from '@ant-design/pro-layout';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Card, Image } from 'antd';
+import { Button, Card, Image } from 'antd';
 import Meta from 'antd/es/card/Meta';
 import React, { useState } from 'react';
 import { useParams } from 'umi';
@@ -76,6 +84,67 @@ const Form: React.FC = () => {
       ellipsis: true,
     },
   ];
+
+  const columnsReport: ProColumns<API.RedemptionReportListItem>[] = [
+    {
+      title: <FormattedMessage id="pages.series.redemption.report.id" defaultMessage="ID" />,
+      dataIndex: 'id',
+      ellipsis: true,
+    },
+    {
+      title: (
+        <FormattedMessage
+          id="pages.series.redemption.report.upstreamUserId"
+          defaultMessage="上游用户ID"
+        />
+      ),
+      dataIndex: 'upstreamUserId',
+      ellipsis: true,
+    },
+    {
+      title: <FormattedMessage id="pages.series.redemption.report.title" defaultMessage="标题" />,
+      dataIndex: 'title',
+      ellipsis: true,
+    },
+    {
+      title: <FormattedMessage id="pages.series.redemption.report.status" defaultMessage="状态" />,
+      dataIndex: 'status',
+      ellipsis: true,
+    },
+    {
+      title: (
+        <FormattedMessage id="pages.series.redemption.report.createdAt" defaultMessage="创建时间" />
+      ),
+      dataIndex: 'createdAt',
+      valueType: 'dateTime',
+    },
+    {
+      title: (
+        <FormattedMessage id="pages.series.redemption.report.updatedAt" defaultMessage="更新时间" />
+      ),
+      dataIndex: 'updatedAt',
+      valueType: 'dateTime',
+    },
+  ];
+
+  const onDownloadReport = async () => {
+    try {
+      const response = await downloadReport({ seriesId: id });
+      response.blob().then((blob) => {
+        const a = document.createElement('a');
+        const URL = window.URL || window.webkitURL;
+        const herf = URL.createObjectURL(blob);
+        a.href = herf;
+        a.download = `${Date.now()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(herf);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   /**
    * @en-US International configuration
@@ -196,6 +265,38 @@ const Form: React.FC = () => {
             })}
           </ProCard>
         )}
+        <ProCard
+          title={intl.formatMessage({
+            id: 'pages.series.redemption.report.list',
+            defaultMessage: '兑换报告',
+          })}
+          extra={
+            <Button
+              key="download"
+              type="primary"
+              icon={<DownloadOutlined />}
+              onClick={onDownloadReport}
+            >
+              下载
+            </Button>
+          }
+          ghost
+        >
+          <ProCard>
+            <ProTable<API.RedemptionReportListItem, API.RedemptionReportPageParams>
+              search={false}
+              bordered={true}
+              toolBarRender={false}
+              rowKey="id"
+              params={{
+                seriesId: id,
+              }}
+              pagination={{ defaultPageSize: 10, showSizeChanger: true }}
+              request={getRedemptionReportList}
+              columns={columnsReport}
+            />
+          </ProCard>
+        </ProCard>
       </Card>
     </PageContainer>
   );
