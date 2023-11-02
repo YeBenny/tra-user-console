@@ -157,7 +157,7 @@ export default defineConfig({
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   requestRecord: {},
   define: {
-    ENDPOINT: 'http://8.134.179.183:6004/v1/wegalaxy-tra',
+    ENDPOINT: 'http://8.134.179.183:6004/v1/tra',
     ENV: 'dev',
   },
 });
