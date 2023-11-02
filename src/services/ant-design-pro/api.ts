@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
+import { v4 as uuidv4 } from 'uuid';
 
 /** 获取当前的用户 GET /users */
 export async function currentUser(options?: { [key: string]: any }) {
@@ -351,6 +352,64 @@ export async function getRedemptionList(
       ...(options || {}),
     },
   );
+}
+
+/** 获取兑换报告列表 POST /apps/series/redemptions/list-report */
+export async function getRedemptionReportList(
+  params: API.RedemptionReportPageParams,
+  options?: { [key: string]: any },
+) {
+  const current = params.current ?? 1;
+  const pageSize = params.pageSize ?? 10;
+  const body = {
+    seriesId: params.seriesId,
+    pageInfo: {
+      startIndex: (current - 1) * pageSize + 1,
+      pageSize: pageSize,
+    },
+  };
+  const msg = await request<API.ResponseResult<API.RedemptionReportList>>(
+    '/apps/series/redemptions/list-report',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    },
+  );
+  const data = msg.data;
+  const result = data.result;
+  result?.forEach((item) => {
+    item.createdAt = Math.round(new Date(item.createdAt).getTime());
+    item.updatedAt = Math.round(new Date(item.updatedAt).getTime());
+  });
+  return {
+    data: result,
+    total: data.pageInfo?.totalRows,
+    success: true,
+    pageSize: pageSize,
+    current: current,
+  };
+}
+
+/** 下载兑换报告 POST /apps/series/redemptions/download-report */
+export async function downloadReport(
+  body: API.DownloadReportParams,
+  options?: { [key: string]: any },
+) {
+  const token = localStorage.getItem('token');
+  return await fetch(`${ENDPOINT}/apps/series/redemptions/download-report`, {
+    method: 'POST',
+    headers: {
+      'X-Wegalaxy-Request-Id': uuidv4(),
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+    ...(options || {}),
+  });
 }
 
 /** 获取文件上传URL POST /files/upload */

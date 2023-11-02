@@ -106,6 +106,12 @@ declare namespace API {
     seriesId?: string;
   };
 
+  type RedemptionReportPageParams = {
+    current?: number;
+    pageSize?: number;
+    seriesId?: string;
+  };
+
   type ApplicationListItem = {
     id: string;
     name: string;
@@ -121,6 +127,21 @@ declare namespace API {
     pageInfo: PageInfoParams;
   };
 
+  type RedemptionReportListItem = {
+    id: string;
+    upstreamUserId: string;
+    redemptionRuleId: string;
+    title: string;
+    status: string;
+    updatedAt: number | string;
+    createdAt: number | string;
+  };
+
+  type RedemptionReportList = {
+    result: RedemptionReportListItem[];
+    pageInfo: PageInfoParams;
+  };
+
   type GetSeriesParams = {
     id: string;
   };
@@ -130,6 +151,10 @@ declare namespace API {
   };
 
   type GetRedemptionListParams = {
+    seriesId: string;
+  };
+
+  type DownloadReportParams = {
     seriesId: string;
   };
 
