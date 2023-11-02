@@ -257,24 +257,8 @@ export async function updateTras(body: API.UpdateTrasParams, options?: { [key: s
 }
 
 /** 获取TRA POST /tras/list */
-export async function getTra(params: API.GetTraParams, options?: { [key: string]: any }) {
-  const current = 1;
-  const pageSize = 1;
-  const body = {
-    pageInfo: {
-      startIndex: (current - 1) * pageSize + 1,
-      pageSize: pageSize,
-    },
-    filters: [
-      {
-        name: 'id',
-        operator: 'equal',
-        value: params.id,
-        valueType: 'string',
-      },
-    ],
-  };
-  const msg = await request<API.ResponseResult<API.TraList>>('/tras/list', {
+export async function getTra(body: API.GetTraParams, options?: { [key: string]: any }) {
+  return await request<API.ResponseResult<API.TraList>>('/tras/get', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -282,19 +266,6 @@ export async function getTra(params: API.GetTraParams, options?: { [key: string]
     data: body,
     ...(options || {}),
   });
-  const data = msg.data;
-  const result = data.result;
-  if (result.length > 0) {
-    return {
-      data: result[0],
-      success: true,
-    };
-  } else {
-    return {
-      data: null,
-      success: false,
-    };
-  }
 }
 
 /** 获取TRA列表 POST /tras/list */
