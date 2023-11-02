@@ -1,5 +1,5 @@
 import { AvatarDropdown, AvatarName } from '@/components';
-import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
+import { getOrgnization, currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
 import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
@@ -21,10 +21,15 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser({
+      const msgUser = await queryCurrentUser({
         skipErrorHandler: true,
       });
-      return msg.data;
+      const msgOrgnization = await getOrgnization({
+        skipErrorHandler: true,
+      });
+      const currentUser = msgUser.data;
+      currentUser.organization = msgOrgnization.data;
+      return currentUser;
     } catch (error) {
       history.push(loginPath);
     }

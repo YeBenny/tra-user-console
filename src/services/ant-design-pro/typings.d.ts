@@ -35,16 +35,17 @@ declare namespace API {
     nickname: string;
     userStatus: UserStatus;
     permissionList?: string[];
+    organization?: Organization;
   };
 
   type Organization = {
-    createdAt: string;
-    description: string;
     id: string;
-    inmeritsSceneId: string;
     name: string;
-    updatedAt: number;
+    description: string;
+    inmeritsSceneId: string;
     version: number;
+    createdAt: string;
+    updatedAt: number;
   };
 
   type ResponseResult<T> = {
