@@ -1,4 +1,5 @@
 import {
+  createRedemptionRule,
   createTras,
   getAppList,
   getRedemptionList,
@@ -188,7 +189,8 @@ const Form: React.FC = () => {
       setStep3Loading(true);
       try {
         const ruleList = values.ruleList;
-        const redemptionRuleList: API.UpdateRedemptionRuleItem[] = [];
+        const redemptionRuleUpdatList: API.UpdateRedemptionRuleItem[] = [];
+        const redemptionRuleCreateList: API.CreateRedemptionRuleItem[] = [];
         for (const rule of ruleList) {
           const redemption = redemptionList?.find(
             (redemption) => redemption.redemptionRule.id === rule.id,
@@ -239,10 +241,42 @@ const Form: React.FC = () => {
               redemptionRule: updateRedemptionRule,
               redemptionTraInfos: updateRedemptionTraInfoList,
             };
-            redemptionRuleList.push(redemptionRuleItem);
+            redemptionRuleUpdatList.push(redemptionRuleItem);
+          } else {
+            const image = rule.image[0];
+            let file = new File([image.originFileObj], `${Date.now()}.png`, { type: image.type });
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('path', 'tra');
+
+            let msg = await uploadFile(formData);
+            const imageUrl = msg.data.url;
+
+            const redemptionRule: API.CreateRedemptionRule = {
+              seriesId: series.id,
+              title: rule.title,
+              description: rule.description,
+              image: imageUrl,
+            };
+
+            const traInfoList = rule.traInfoList;
+            const redemptionTraInfoList: API.CreateRedemptionTraInfoItem[] = [];
+            for (const traInfo of traInfoList) {
+              const redemptionTraInfoItem: API.CreateRedemptionTraInfoItem = {
+                traId: traInfo.traId,
+                quantity: traInfo.quantity,
+              };
+              redemptionTraInfoList.push(redemptionTraInfoItem);
+            }
+            const redemptionRuleItem: API.CreateRedemptionRuleItem = {
+              redemptionRule: redemptionRule,
+              redemptionTraInfos: redemptionTraInfoList,
+            };
+            redemptionRuleCreateList.push(redemptionRuleItem);
           }
         }
-        await updateRedemptionRule({ items: redemptionRuleList });
+        await updateRedemptionRule({ items: redemptionRuleUpdatList });
+        await createRedemptionRule({ items: redemptionRuleCreateList });
         return true;
       } catch (error) {
         console.log(error);
