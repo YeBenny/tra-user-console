@@ -25,7 +25,7 @@ import {
 } from '@ant-design/pro-form';
 import { PageContainer } from '@ant-design/pro-layout';
 import { FormattedMessage, useIntl, useParams } from '@umijs/max';
-import { Button, Card } from 'antd';
+import { Button, Card, Flex } from 'antd';
 import { useEffect, useState } from 'react';
 import { history } from 'umi';
 
@@ -33,6 +33,7 @@ const Form: React.FC = () => {
   const params = useParams();
   const id = params.id?.toString() ?? '';
 
+  const [needSaved, setNeedSaved] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [step1Loading, setStep1Loading] = useState<boolean>(false);
   const [step2Loading, setStep2Loading] = useState<boolean>(false);
@@ -326,37 +327,70 @@ const Form: React.FC = () => {
               render: (props) => {
                 if (props.step === 0) {
                   return (
-                    <Button
-                      type="primary"
-                      onClick={() => props.onSubmit?.()}
-                      loading={step1Loading}
-                    >
-                      保存
-                    </Button>
+                    <Flex gap="small" wrap="wrap">
+                      <Button
+                        onClick={() => {
+                          setNeedSaved(false);
+                          props.onSubmit?.();
+                        }}
+                      >
+                        下一步
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          setNeedSaved(true);
+                          props.onSubmit?.();
+                        }}
+                        loading={step1Loading}
+                      >
+                        保存
+                      </Button>
+                    </Flex>
                   );
                 }
 
                 if (props.step === 1) {
                   return (
-                    <Button
-                      type="primary"
-                      onClick={() => props.onSubmit?.()}
-                      loading={step2Loading}
-                    >
-                      保存
-                    </Button>
+                    <Flex gap="small" wrap="wrap">
+                      <Button onClick={() => props.onPre?.()}>上一步</Button>
+                      <Button
+                        onClick={() => {
+                          setNeedSaved(false);
+                          props.onSubmit?.();
+                        }}
+                      >
+                        下一步
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          setNeedSaved(true);
+                          props.onSubmit?.();
+                        }}
+                        loading={step2Loading}
+                      >
+                        保存
+                      </Button>
+                    </Flex>
                   );
                 }
 
                 if (props.step === 2) {
                   return (
-                    <Button
-                      type="primary"
-                      onClick={() => props.onSubmit?.()}
-                      loading={step3Loading}
-                    >
-                      提交
-                    </Button>
+                    <Flex gap="small" wrap="wrap">
+                      <Button onClick={() => props.onPre?.()}>上一步</Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          setNeedSaved(true);
+                          props.onSubmit?.();
+                        }}
+                        loading={step3Loading}
+                      >
+                        提交
+                      </Button>
+                    </Flex>
                   );
                 }
               },
@@ -365,12 +399,12 @@ const Form: React.FC = () => {
             <StepsForm.StepForm
               title={intl.formatMessage({
                 id: 'pages.series.step1.title',
-                defaultMessage: '创建系列',
+                defaultMessage: '配置系列',
               })}
               stepProps={{
                 description: intl.formatMessage({
                   id: 'pages.series.step1.desc',
-                  defaultMessage: '填入系列基本信息',
+                  defaultMessage: '填入系列信息',
                 }),
               }}
               request={async () => {
@@ -394,7 +428,10 @@ const Form: React.FC = () => {
                 };
               }}
               onFinish={async (values) => {
-                return await onUpdateSeries(values);
+                if (needSaved) {
+                  return await onUpdateSeries(values);
+                }
+                return true;
               }}
             >
               <ProFormSelect
@@ -422,6 +459,7 @@ const Form: React.FC = () => {
                     ),
                   },
                 ]}
+                disabled
               ></ProFormSelect>
               <ProFormUploadButton
                 name="image"
@@ -558,12 +596,12 @@ const Form: React.FC = () => {
             <StepsForm.StepForm
               title={intl.formatMessage({
                 id: 'pages.series.step2.title',
-                defaultMessage: '设置模版',
+                defaultMessage: '设置TRA',
               })}
               stepProps={{
                 description: intl.formatMessage({
                   id: 'pages.series.step2.desc',
-                  defaultMessage: '填入系列模版和TRA',
+                  defaultMessage: '填入TRA信息',
                 }),
               }}
               request={async () => {
@@ -603,7 +641,10 @@ const Form: React.FC = () => {
                 };
               }}
               onFinish={async (values) => {
-                return await onUpdateTras(values);
+                if (needSaved) {
+                  return await onUpdateTras(values);
+                }
+                return true;
               }}
             >
               <ProFormSelect
@@ -772,12 +813,15 @@ const Form: React.FC = () => {
                 return { ruleList: redemptionRuleList };
               }}
               onFinish={async (values) => {
-                const result = await onUpdateRedemptionRule(values);
-                if (result) {
-                  history.replace('/series/list');
-                  return true;
+                if (needSaved) {
+                  const result = await onUpdateRedemptionRule(values);
+                  if (result) {
+                    history.replace('/series/list');
+                    return true;
+                  }
+                  return false;
                 }
-                return false;
+                return true;
               }}
             >
               <ProFormList
