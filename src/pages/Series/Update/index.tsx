@@ -1,4 +1,5 @@
 import {
+  createTras,
   getAppList,
   getRedemptionList,
   getSeries,
@@ -82,7 +83,7 @@ const Form: React.FC = () => {
   };
 
   const onUpdateTras = async (values: Record<string, any>) => {
-    const generateTras = async (contractCandidateList: API.ContractCandidateListItem[]) => {
+    const generateUpdatTras = async (contractCandidateList: API.ContractCandidateListItem[]) => {
       const tras: API.UpdateTrasListItem[] = [];
       for (const contractCandidate of contractCandidateList) {
         const traItem = traList?.find((tra) => tra.contractAddress === contractCandidate.address);
@@ -118,15 +119,58 @@ const Form: React.FC = () => {
       return tras;
     };
 
+    const generateCreatTras = async (
+      seriesId: string,
+      contractCandidateList: API.ContractCandidateListItem[],
+    ): Promise<API.CreateTrasListItem[]> => {
+      const tras: API.CreateTrasListItem[] = [];
+      for (const contractCandidate of contractCandidateList) {
+        const image = values[`${contractCandidate.address}_image`][0];
+        const title = values[`${contractCandidate.address}_title`];
+        const description = values[`${contractCandidate.address}_description`];
+        let file = new File([image.originFileObj], `${Date.now()}.png`, { type: image.type });
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', 'tra');
+
+        let msg = await uploadFile(formData);
+        const imageUrl = msg.data.url;
+        const tra: API.CreateTrasListItem = {
+          seriesId: seriesId,
+          title: title,
+          description: description,
+          image: imageUrl,
+          contractAddress: contractCandidate.address,
+          issueRuleId:
+            contractCandidate.issueRules && contractCandidate.issueRules.length > 0
+              ? contractCandidate.issueRules[0].issueRuleName
+              : '',
+        };
+        tras.push(tra);
+      }
+      return tras;
+    };
+
     if (series && contractCandidateList) {
       setStep2Loading(true);
       try {
-        const traList = await generateTras(contractCandidateList);
-        const fields: API.UpdateTrasParams = {
-          items: traList,
-        };
-        const result = await updateTras({ ...fields });
-        setTraList(result.data);
+        const traList = await generateUpdatTras(contractCandidateList);
+        if (traList && traList.length > 0) {
+          const fields: API.UpdateTrasParams = {
+            items: traList,
+          };
+          const result = await updateTras({ ...fields });
+          setTraList(result.data);
+        } else {
+          const traList = await generateCreatTras(series.id, contractCandidateList);
+          const fields: API.CreateTrasParams = {
+            seriesNodePath: values.activityCandidateId,
+            seriesVersion: series.version,
+            tras: traList,
+          };
+          const result = await createTras({ ...fields });
+          setTraList(result.data);
+        }
         return true;
       } catch (error) {
         console.log(error);
@@ -490,7 +534,7 @@ const Form: React.FC = () => {
               }}
               request={async () => {
                 const traListMap: Record<string, any> = {};
-                if (series) {
+                if (series && series.nodePath !== '') {
                   const msgContractCandidateList = await getSeriesContractCandidatesList({
                     inmeritsNodePath: series.nodePath,
                   });
