@@ -259,7 +259,7 @@ export async function updateTras(body: API.UpdateTrasParams, options?: { [key: s
 
 /** 获取TRA POST /tras/list */
 export async function getTra(body: API.GetTraParams, options?: { [key: string]: any }) {
-  return await request<API.ResponseResult<API.TraList>>('/tras/get', {
+  return await request<API.ResponseResult<API.TraListItem>>('/tras/get', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
