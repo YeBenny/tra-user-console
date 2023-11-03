@@ -199,12 +199,12 @@ const Form: React.FC = () => {
           <StepsForm.StepForm
             title={intl.formatMessage({
               id: 'pages.series.step1.title',
-              defaultMessage: '创建系列',
+              defaultMessage: '配置系列',
             })}
             stepProps={{
               description: intl.formatMessage({
                 id: 'pages.series.step1.desc',
-                defaultMessage: '填入系列基本信息',
+                defaultMessage: '填入系列信息',
               }),
             }}
             onFinish={async (values) => {
@@ -370,12 +370,12 @@ const Form: React.FC = () => {
           <StepsForm.StepForm
             title={intl.formatMessage({
               id: 'pages.series.step2.title',
-              defaultMessage: '设置模版',
+              defaultMessage: '设置TRA',
             })}
             stepProps={{
               description: intl.formatMessage({
                 id: 'pages.series.step2.desc',
-                defaultMessage: '填入系列模版和TRA',
+                defaultMessage: '填入TRA信息',
               }),
             }}
             onFinish={async (values) => {
