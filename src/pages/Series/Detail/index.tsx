@@ -182,7 +182,7 @@ const Form: React.FC = () => {
           >
             {traList.map((tra) => {
               return (
-                <ProCard key={tra.id} colSpan={{ xs: 8, sm: 8, md: 8, lg: 8, xl: 8 }}>
+                <ProCard key={tra.id} colSpan={{ xs: 12, sm: 12, md: 12, lg: 8, xl: 6 }}>
                   <Card
                     cover={<Image style={{ objectFit: 'contain' }} height={160} src={tra.image} />}
                   >
@@ -196,8 +196,8 @@ const Form: React.FC = () => {
         {redemptionList && (
           <ProCard
             title={intl.formatMessage({
-              id: 'pages.series.redemption.list',
-              defaultMessage: '兑换列表',
+              id: 'pages.series.redemption.rule.list',
+              defaultMessage: '兑换规则列表',
             })}
             direction="row"
             ghost
@@ -209,7 +209,7 @@ const Form: React.FC = () => {
               return (
                 <ProCard
                   key={redemptionRule.id}
-                  colSpan={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                  colSpan={{ xs: 24, sm: 24, md: 24, lg: 24, xl: 12 }}
                 >
                   <Card
                     cover={
@@ -228,9 +228,13 @@ const Form: React.FC = () => {
 
                     {redemptionTraInfos && (
                       <ProTable<API.RedemptionInfoTraListItem>
+                        headerTitle={intl.formatMessage({
+                          id: 'pages.series.redemption.tra.list.title',
+                          defaultMessage: '所需TRA列表',
+                        })}
                         search={false}
                         pagination={false}
-                        toolBarRender={false}
+                        options={false}
                         bordered={true}
                         columns={columnsTra}
                         rowKey={(item) => `${redemptionRule.id}_${item.id}`}
