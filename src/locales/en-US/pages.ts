@@ -10,7 +10,7 @@ export default {
   'pages.login.email.placeholder': 'Email',
   'pages.login.email.required': 'Please input your email!',
   'pages.login.email.invalid': 'Please input valid email!',
-  'pages.login.password.placeholder': 'Password: ant.design',
+  'pages.login.password.placeholder': 'Password',
   'pages.login.password.required': 'Please input your password!',
   'pages.login.phoneLogin.tab': 'Phone Login',
   'pages.login.phoneLogin.errorMessage': 'Verification Code Error',
